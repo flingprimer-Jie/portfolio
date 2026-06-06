@@ -120,15 +120,18 @@ const LB = [
 ];
 const LB_NET = 3782.86; // 长桥美股账户净值（截图）
 
-// IBKR 兜底快照（若实时拉取失败时使用）
+// IBKR 兜底快照（若实时拉取失败时使用）— 由定时任务自动刷新，勿手动改 marker 之间内容
+/*IBKR_SNAPSHOT_START*/
 const IB_FALLBACK = {positions:[
-  {contract_description:"AMKR",position:5,market_price:63.52,market_value:317.60,average_price:65.23526,unrealized_pnl:-8.58},
-  {contract_description:"CIEN",position:1,market_price:476.05,market_value:476.05,average_price:513.4715,unrealized_pnl:-37.42},
-  {contract_description:"NOK",position:23,market_price:14.10,market_value:324.30,average_price:14.614731,unrealized_pnl:-11.84},
-  {contract_description:"SITM",position:0.6,market_price:621.10,market_value:372.66,average_price:686.584,unrealized_pnl:-39.29},
-  {contract_description:"TTMI",position:2,market_price:165.47,market_value:330.94,average_price:173.26475,unrealized_pnl:-15.59},
+  {contract_description:"AMKR",position:5.0,market_price:63.52,market_value:317.6,average_price:65.23526,unrealized_pnl:-8.58},
+  {contract_description:"CIEN",position:1.0,market_price:476.05,market_value:476.05,average_price:513.4715,unrealized_pnl:-37.42},
+  {contract_description:"NOK",position:23.0,market_price:14.1,market_value:324.3,average_price:14.61473,unrealized_pnl:-11.84},
+  {contract_description:"SITM",position:0.6,market_price:621.1,market_value:372.66,average_price:686.584,unrealized_pnl:-39.29},
+  {contract_description:"TTMI",position:2.0,market_price:165.47,market_value:330.94,average_price:173.26475,unrealized_pnl:-15.59},
 ]};
-const IB_NET_FALLBACK = 2323.28;
+const IB_NET_FALLBACK = 2323.27;
+const IB_SNAPSHOT_TIME = "2026-06-06 11:48 UTC";
+/*IBKR_SNAPSHOT_END*/
 
 const NAMES = {NOK:"Nokia Oyj",AMKR:"Amkor Tech",CIEN:"Ciena",SITM:"SiTime",TTMI:"TTM Technologies",RBLX:"Roblox",FOTO:"Tuttle Photonics ETF",FSLY:"Fastly",CRCL:"Circle"};
 
@@ -316,8 +319,8 @@ function render(state){
   document.getElementById("foot").innerHTML=
     (live
       ? `<span class="src ib">IBKR</span> 实时拉取（持仓 + 现价 + 净值）　<span class="src lb">长桥</span> / <span class="src pre">Pre-IPO</span> / <span class="src cash">现金</span> 静态数据`
-      : `<b style="color:#fbbf24">⚠ 静态快照</b>（非 Cowork 环境，IBKR 数据为生成时的快照，不会自动更新）　<span class="src lb">长桥</span> / <span class="src pre">Pre-IPO</span> / <span class="src cash">现金</span> 静态数据`)
-    + `<br>数据更新时间：${new Date().toLocaleString("zh-CN")}　·　方块面积=市值占比　·　颜色越亮代表板块内市值越大　·　红涨绿跌（Pre-IPO/现金无浮动盈亏）`;
+      : `<b style="color:#fbbf24">⚠ 静态快照</b>（IBKR 数据为定时任务生成的快照，每交易日收盘后自动更新）　<span class="src lb">长桥</span> / <span class="src pre">Pre-IPO</span> / <span class="src cash">现金</span> 静态数据`)
+    + `<br>${live?"数据更新时间："+new Date().toLocaleString("zh-CN"):"快照时间："+IB_SNAPSHOT_TIME}　·　方块面积=市值占比　·　颜色越亮代表板块内市值越大　·　红涨绿跌（Pre-IPO/现金无浮动盈亏）`;
 }
 
 let CUR=null;
