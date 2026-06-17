@@ -111,14 +111,15 @@ td.l,th.l{ text-align:left; }
 <script>
 // ---------- 静态：长桥持仓（来自截图，无法实时拉取）----------
 const LB = [
-  {tk:"NOK",  name:"Nokia Oyj",       qty:98, price:14.060, cost:15.964},
-  {tk:"AMKR", name:"Amkor Tech",      qty:15, price:63.830, cost:69.420},
-  {tk:"RBLX", name:"Roblox",          qty:18, price:41.850, cost:45.929},
-  {tk:"FOTO", name:"Tuttle Photonics",qty:15, price:23.990, cost:24.240},
-  {tk:"FSLY", name:"Fastly",          qty:15, price:17.870, cost:23.840},
-  {tk:"CRCL", name:"Circle",          qty:3,  price:80.270, cost:105.133},
+  {tk:"RBLX", name:"Roblox",              qty:18, price:49.600, cost:45.929},
+  {tk:"DRAM", name:"Roundhill Memory ETF",qty:9,  price:68.900, cost:65.110},
+  {tk:"ORCL", name:"Oracle",              qty:3,  price:186.712,cost:180.770},
+  {tk:"FOTO", name:"Tuttle Photonics",    qty:15, price:24.176, cost:24.240},
+  {tk:"NOK",  name:"Nokia Oyj",           qty:25, price:14.010, cost:14.550},
+  {tk:"FSLY", name:"Fastly",              qty:15, price:17.650, cost:23.840},
+  {tk:"CRCL", name:"Circle",              qty:3,  price:80.170, cost:105.133},
 ];
-const LB_NET = 3782.86; // 长桥美股账户净值（截图）
+const LB_NET = 4197.71; // 长桥美股账户净值（截图，含现金；股票市值约 3291，现金约 907）
 
 // IBKR 兜底快照（若实时拉取失败时使用）— 由定时任务自动刷新，勿手动改 marker 之间内容
 /*IBKR_SNAPSHOT_START*/
@@ -133,12 +134,12 @@ const IB_NET_FALLBACK = 2323.27;
 const IB_SNAPSHOT_TIME = "2026-06-06 11:48 UTC";
 /*IBKR_SNAPSHOT_END*/
 
-const NAMES = {NOK:"Nokia Oyj",AMKR:"Amkor Tech",CIEN:"Ciena",SITM:"SiTime",TTMI:"TTM Technologies",RBLX:"Roblox",FOTO:"Tuttle Photonics ETF",FSLY:"Fastly",CRCL:"Circle"};
+const NAMES = {NOK:"Nokia Oyj",AMKR:"Amkor Tech",CIEN:"Ciena",SITM:"SiTime",TTMI:"TTM Technologies",RBLX:"Roblox",FOTO:"Tuttle Photonics ETF",FSLY:"Fastly",CRCL:"Circle",DRAM:"Roundhill Memory ETF",ORCL:"Oracle"};
 
 // ---------- 板块映射 ----------
 const SECTOR = {
   NOK:"光通讯", CIEN:"光通讯", FOTO:"光通讯",
-  AMKR:"半导体/AI基建", SITM:"半导体/AI基建", TTMI:"半导体/AI基建",
+  AMKR:"半导体/AI基建", SITM:"半导体/AI基建", TTMI:"半导体/AI基建", DRAM:"半导体/AI基建", ORCL:"半导体/AI基建",
   RBLX:"AI应用", FSLY:"AI应用",
   CRCL:"加密货币",
 };
