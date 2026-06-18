@@ -47,6 +47,12 @@ body{ background:transparent; font-family:-apple-system,BlinkMacSystemFont,"Sego
 .legend{ display:flex; flex-wrap:wrap; gap:16px; margin-top:12px; }
 .legend span{ font-size:12px; color:#aab4c2; display:flex; align-items:center; gap:6px; }
 .legend i{ width:11px; height:11px; border-radius:3px; display:inline-block; }
+.sector-notes{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:14px; }
+.sector-note{ background:rgba(255,255,255,.025); border:1px solid rgba(255,255,255,.06); border-radius:10px; padding:10px 12px; min-height:78px; }
+.sector-note b{ display:flex; align-items:center; gap:7px; color:#e6edf3; font-size:12px; margin-bottom:5px; }
+.sector-note i{ width:10px; height:10px; border-radius:3px; display:inline-block; flex:0 0 auto; }
+.sector-note p{ color:#8b97a7; font-size:11px; line-height:1.45; }
+.table-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
 table{ width:100%; border-collapse:collapse; margin-top:22px; font-size:13px; }
 th,td{ text-align:right; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.06); }
 th{ color:#8b97a7; font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.4px; }
@@ -62,6 +68,7 @@ td.l,th.l{ text-align:left; }
 .src.pre{ background:rgba(244,114,182,.15); color:#f9a8d4; }
 .src.cash{ background:rgba(148,163,184,.18); color:#cbd5e1; }
 @media(max-width:680px){ .cards{ grid-template-columns:repeat(2,1fr);} #tree{height:560px;} table{font-size:12px;} }
+@media(max-width:680px){ .sector-notes{ grid-template-columns:1fr;} }
 </style>
 </head>
 <body>
@@ -82,10 +89,10 @@ td.l,th.l{ text-align:left; }
   </div>
 
   <div class="cards">
-    <div class="card"><div class="k">总资产</div><div class="v" id="cNet">—</div><div class="h" id="cNetH">IBKR + 长桥 + Pre-IPO</div></div>
+    <div class="card"><div class="k">总资产</div><div class="v" id="cNet">—</div><div class="h" id="cNetH">IBKR + 长桥 + USDT + Anthropic</div></div>
     <div class="card"><div class="k">股票市值</div><div class="v" id="cStk">—</div><div class="h" id="cStkH">占总资产 —</div></div>
-    <div class="card"><div class="k">Pre-IPO 一级市场</div><div class="v" id="cPre">—</div><div class="h" id="cPreH">占总资产 —</div></div>
-    <div class="card"><div class="k">现金</div><div class="v" id="cCash">—</div><div class="h" id="cCashH">占总资产 —</div></div>
+    <div class="card"><div class="k">私募 / Pre-IPO</div><div class="v" id="cPre">—</div><div class="h" id="cPreH">占总资产 —</div></div>
+    <div class="card"><div class="k">现金 + USDT</div><div class="v" id="cCash">—</div><div class="h" id="cCashH">占总资产 —</div></div>
   </div>
   <div class="eq" id="eqLine">加载中…</div>
 
@@ -97,13 +104,16 @@ td.l,th.l{ text-align:left; }
 
   <div class="secbar" id="secbar"></div>
   <div class="legend" id="legend"></div>
+  <div class="sector-notes" id="sectorNotes"></div>
 
-  <table id="holdTable">
-    <thead><tr>
-      <th class="l">标的</th><th class="l">板块</th><th>股数</th><th>现价</th><th>市值</th><th>成本</th><th>浮动盈亏</th><th>占比</th>
-    </tr></thead>
-    <tbody></tbody>
-  </table>
+  <div class="table-wrap">
+    <table id="holdTable">
+      <thead><tr>
+        <th class="l">标的</th><th class="l">板块</th><th>股数</th><th>现价</th><th>市值</th><th>成本</th><th>浮动盈亏</th><th>占比</th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
   <div class="foot" id="foot"></div>
 </div>
@@ -111,45 +121,58 @@ td.l,th.l{ text-align:left; }
 <script>
 // ---------- 静态：长桥持仓（来自截图，无法实时拉取）----------
 const LB = [
-  {tk:"RBLX", name:"Roblox",              qty:18, price:49.600, cost:45.929},
-  {tk:"DRAM", name:"Roundhill Memory ETF",qty:9,  price:68.900, cost:65.110},
-  {tk:"ORCL", name:"Oracle",              qty:3,  price:186.712,cost:180.770},
-  {tk:"FOTO", name:"Tuttle Photonics",    qty:15, price:24.176, cost:24.240},
-  {tk:"NOK",  name:"Nokia Oyj",           qty:25, price:14.010, cost:14.550},
-  {tk:"FSLY", name:"Fastly",              qty:15, price:17.650, cost:23.840},
-  {tk:"CRCL", name:"Circle",              qty:3,  price:80.170, cost:105.133},
+  {tk:"RBLX", name:"Roblox",                   qty:18, price:48.630, cost:45.929},
+  {tk:"DRAM", name:"Roundhill Memory ETF",     qty:9,  price:74.191, cost:65.110},
+  {tk:"ORCL", name:"Oracle",                   qty:3,  price:185.540,cost:180.770},
+  {tk:"VCX",  name:"Fundrise Innovation Fund", qty:4,  price:99.080, cost:97.890},
+  {tk:"FOTO", name:"Tuttle Photonics ETF",     qty:15, price:24.380, cost:24.240},
+  {tk:"NOK",  name:"Nokia Oyj",                qty:25, price:13.960, cost:14.550},
+  {tk:"FSLY", name:"Fastly",                   qty:15, price:17.460, cost:23.840},
+  {tk:"CRCL", name:"Circle",                   qty:3,  price:81.580, cost:105.133},
 ];
-const LB_NET = 4197.71; // 长桥美股账户净值（截图，含现金；股票市值约 3291，现金约 907）
+const LB_NET = 4229.02; // 长桥美股账户净值（2026-06-18 截图，含现金；股票市值 3717.33）
+const EXTRA_CASH = [
+  {tk:"USDT", name:"USDT", mv:476, src:"USDT"},
+];
 
 // IBKR 兜底快照（若实时拉取失败时使用）— 由定时任务自动刷新，勿手动改 marker 之间内容
 /*IBKR_SNAPSHOT_START*/
 const IB_FALLBACK = {positions:[
-  {contract_description:"AMKR",position:5.0,market_price:63.52,market_value:317.6,average_price:65.23526,unrealized_pnl:-8.58},
-  {contract_description:"CIEN",position:1.0,market_price:476.05,market_value:476.05,average_price:513.4715,unrealized_pnl:-37.42},
-  {contract_description:"NOK",position:23.0,market_price:14.1,market_value:324.3,average_price:14.61473,unrealized_pnl:-11.84},
-  {contract_description:"SITM",position:0.6,market_price:621.1,market_value:372.66,average_price:686.584,unrealized_pnl:-39.29},
-  {contract_description:"TTMI",position:2.0,market_price:165.47,market_value:330.94,average_price:173.26475,unrealized_pnl:-15.59},
+  {contract_description:"CIEN",position:2.6,market_price:451.0,market_value:1172.6,average_price:462.69858,unrealized_pnl:-30.42},
+  {contract_description:"NOK",position:37.0,market_price:13.98,market_value:517.26,average_price:15.18267,unrealized_pnl:-44.5},
+  {contract_description:"SITM",position:0.6,market_price:695.34,market_value:417.2,average_price:686.584,unrealized_pnl:5.25},
 ]};
-const IB_NET_FALLBACK = 2323.27;
-const IB_SNAPSHOT_TIME = "2026-06-06 11:48 UTC";
+const IB_NET_FALLBACK = 2352.54;
+const IB_CASH_FALLBACK = 248.62;
+const IB_SNAPSHOT_TIME = "2026-06-18 10:42 UTC";
 /*IBKR_SNAPSHOT_END*/
 
-const NAMES = {NOK:"Nokia Oyj",AMKR:"Amkor Tech",CIEN:"Ciena",SITM:"SiTime",TTMI:"TTM Technologies",RBLX:"Roblox",FOTO:"Tuttle Photonics ETF",FSLY:"Fastly",CRCL:"Circle",DRAM:"Roundhill Memory ETF",ORCL:"Oracle"};
+const NAMES = {NOK:"Nokia Oyj",CIEN:"Ciena",SITM:"SiTime",RBLX:"Roblox",FOTO:"Tuttle Photonics ETF",FSLY:"Fastly",CRCL:"Circle",DRAM:"Roundhill Memory ETF",ORCL:"Oracle",VCX:"Fundrise Innovation Fund"};
 
 // ---------- 板块映射 ----------
 const SECTOR = {
-  NOK:"光通讯", CIEN:"光通讯", FOTO:"光通讯",
-  AMKR:"半导体/AI基建", SITM:"半导体/AI基建", TTMI:"半导体/AI基建", DRAM:"半导体/AI基建", ORCL:"半导体/AI基建",
-  RBLX:"AI应用", FSLY:"AI应用",
-  CRCL:"加密货币",
+  NOK:"光通信/网络设备", CIEN:"光通信/网络设备", FOTO:"光通信/网络设备",
+  SITM:"AI半导体/硬件", DRAM:"AI半导体/硬件",
+  ORCL:"云与互联网基础设施", FSLY:"云与互联网基础设施",
+  RBLX:"游戏/消费者平台",
+  VCX:"私募科技/AI",
+  CRCL:"加密/金融基础设施",
 };
-const SECTOR_HUE = {"光通讯":265, "半导体/AI基建":192, "AI应用":150, "Pre-IPO 一级市场":330, "加密货币":35, "现金":210, "其他":220};
-const SECTOR_ORDER = ["光通讯","半导体/AI基建","AI应用","Pre-IPO 一级市场","加密货币","现金","其他"];
+const SECTOR_HUE = {"光通信/网络设备":265, "AI半导体/硬件":192, "云与互联网基础设施":150, "游戏/消费者平台":35, "私募科技/AI":330, "加密/金融基础设施":18, "现金/稳定币":210, "其他":220};
+const SECTOR_ORDER = ["光通信/网络设备","现金/稳定币","AI半导体/硬件","游戏/消费者平台","云与互联网基础设施","私募科技/AI","加密/金融基础设施","其他"];
+const SECTOR_NOTE = {
+  "光通信/网络设备":"最大主题暴露，CIEN + NOK + FOTO 之间有重复敞口；主要看 AI 数据中心网络、光传输订单和客户资本开支节奏。",
+  "现金/稳定币":"现金和 USDT 合并看作流动性仓位；适合留作补仓/风控缓冲，USDT 仍有平台与稳定币风险。",
+  "AI半导体/硬件":"DRAM 和 SITM 都偏 AI 硬件周期，弹性强但对估值、供应链和 AI 基建预期很敏感。",
+  "游戏/消费者平台":"RBLX 是单票平台型成长股，仓位接近两位数；核心看用户增长、变现率和估值承压。",
+  "云与互联网基础设施":"ORCL 偏成熟云与数据库，FSLY 更高波动；同属基础设施，但风险风格差异明显。",
+  "私募科技/AI":"VCX + Anthropic 属于高成长私募科技敞口；想象空间大，估值透明度和流动性相对弱。",
+  "加密/金融基础设施":"CRCL 仓位较小，主要受稳定币监管、利率环境和加密市场情绪影响。"
+};
 
-// 静态：Pre-IPO 一级市场持仓（约 $675）
+// 静态：Pre-IPO / 私募科技持仓
 const PREIPO = [
-  {tk:"SpaceX",    name:"SpaceX (Pre-IPO)",    mv:425, sector:"Pre-IPO 一级市场", src:["PreIPO"], kind:"preipo"},
-  {tk:"Anthropic", name:"Anthropic (Pre-IPO)", mv:250, sector:"Pre-IPO 一级市场", src:["PreIPO"], kind:"preipo"},
+  {tk:"Anthropic", name:"Anthropic (Pre-IPO)", mv:250, sector:"私募科技/AI", src:["PreIPO"], kind:"preipo"},
 ];
 
 function fmt(n){ return "$"+Number(n).toLocaleString("en-US",{maximumFractionDigits:0}); }
@@ -165,10 +188,12 @@ async function getIBKR(){
       const s = await window.cowork.callMcpTool("mcp__697f6c1e-9419-43c2-abf9-93373a2765dd__get_account_summary",{});
       const sd = s.structuredContent ?? JSON.parse(s.content[0].text);
       if(sd && sd.net_liquidation) net = sd.net_liquidation;
+      const cash = sd && (sd.total_cash_value ?? sd.cash_balance ?? sd.available_funds);
+      if(cash !== undefined) return {positions:data.positions||[], net, cash:Number(cash)};
     }catch(e){}
-    return {positions:data.positions||[], net};
+    return {positions:data.positions||[], net, cash:Math.max(net-(data.positions||[]).reduce((s,p)=>s+(p.market_value||0),0),0)};
   }catch(e){
-    return {positions:IB_FALLBACK.positions, net:IB_NET_FALLBACK};
+    return {positions:IB_FALLBACK.positions, net:IB_NET_FALLBACK, cash:IB_CASH_FALLBACK};
   }
 }
 
@@ -219,7 +244,7 @@ function squarify(items, rect){
 }
 
 function tileColor(sector, t){ // t 0..1, 越大越亮
-  if(sector==="现金"){ const l=28+t*14; return `hsl(210 8% ${l}%)`; }
+  if(sector==="现金/稳定币"){ const l=28+t*14; return `hsl(210 8% ${l}%)`; }
   const hue=SECTOR_HUE[sector]||220;
   const l=42+t*22, s=62-t*8;
   return `hsl(${hue} ${s}% ${l}%)`;
@@ -270,12 +295,18 @@ function render(state){
   // --- 板块条 + 图例 ---
   const bar=document.getElementById("secbar"); bar.innerHTML="";
   const lg=document.getElementById("legend"); lg.innerHTML="";
+  const noteBox=document.getElementById("sectorNotes"); noteBox.innerHTML="";
   sectors.forEach(s=>{
     const pct=s.value/totalMV*100;
     const seg=document.createElement("div"); seg.style.width=pct+"%"; seg.style.background=tileColor(s.sector,.8);
     seg.textContent = pct>6? `${s.sector} ${pct.toFixed(0)}%` : "";
     seg.title=`${s.sector} ${pct.toFixed(1)}%`; bar.appendChild(seg);
     const sp=document.createElement("span"); sp.innerHTML=`<i style="background:${tileColor(s.sector,.8)}"></i>${s.sector} ${pct.toFixed(1)}%`; lg.appendChild(sp);
+    if(SECTOR_NOTE[s.sector]){
+      const n=document.createElement("div"); n.className="sector-note";
+      n.innerHTML=`<b><i style="background:${tileColor(s.sector,.8)}"></i>${s.sector} · ${pct.toFixed(1)}%</b><p>${SECTOR_NOTE[s.sector]}</p>`;
+      noteBox.appendChild(n);
+    }
   });
 
   // --- 表格 ---
@@ -314,26 +345,27 @@ function render(state){
   document.getElementById("pnlPct").innerHTML=`${pnlPct>=0?'+':''}${pnlPct.toFixed(1)}%`;
   const badge=document.getElementById("pnlBadge"); badge.className="pnl-badge"+(up?" up":"");
   document.getElementById("eqLine").innerHTML=
-    `<b>${(stockMV/totalMV*100).toFixed(0)}%</b> 股票 + <b>${(preMV/totalMV*100).toFixed(1)}%</b> Pre-IPO + <b>${(cash/totalMV*100).toFixed(1)}%</b> 现金 = <b>100%</b> 总资产　·　股票浮动盈亏 <b class="${up?'up':'down'}">${pls(stockPnl)} (${pnlPct.toFixed(1)}%)</b>`;
-  document.getElementById("sub").textContent=`按板块分类 · ${holdings.length} 个方块 · ${sectors.length} 大板块 · IBKR + 长桥 + Pre-IPO`;
+    `<b>${(stockMV/totalMV*100).toFixed(0)}%</b> 股票 + <b>${(preMV/totalMV*100).toFixed(1)}%</b> 私募/Pre-IPO + <b>${(cash/totalMV*100).toFixed(1)}%</b> 现金/USDT = <b>100%</b> 总资产　·　股票浮动盈亏 <b class="${up?'up':'down'}">${pls(stockPnl)} (${pnlPct.toFixed(1)}%)</b>`;
+  document.getElementById("sub").textContent=`按板块分类 · ${holdings.length} 个方块 · ${sectors.length} 大板块 · IBKR + 长桥 + USDT + Anthropic`;
   const live = !!(window.cowork && window.cowork.callMcpTool);
   document.getElementById("foot").innerHTML=
     (live
-      ? `<span class="src ib">IBKR</span> 实时拉取（持仓 + 现价 + 净值）　<span class="src lb">长桥</span> / <span class="src pre">Pre-IPO</span> / <span class="src cash">现金</span> 静态数据`
-      : `<b style="color:#fbbf24">⚠ 静态快照</b>（IBKR 数据为定时任务生成的快照，每交易日收盘后自动更新）　<span class="src lb">长桥</span> / <span class="src pre">Pre-IPO</span> / <span class="src cash">现金</span> 静态数据`)
-    + `<br>${live?"数据更新时间："+new Date().toLocaleString("zh-CN"):"快照时间："+IB_SNAPSHOT_TIME}　·　方块面积=市值占比　·　颜色越亮代表板块内市值越大　·　红涨绿跌（Pre-IPO/现金无浮动盈亏）`;
+      ? `<span class="src ib">IBKR</span> 实时拉取（持仓 + 现价 + 净值 + 现金）　<span class="src lb">长桥</span> 按 2026-06-18 截图静态保留　<span class="src pre">Anthropic</span> / <span class="src cash">USDT+现金</span> 静态数据`
+      : `<b style="color:#fbbf24">静态快照</b>（IBKR 数据为每日 00:00 自动任务生成的快照）　<span class="src lb">长桥</span> 按 2026-06-18 截图静态保留　<span class="src pre">Anthropic</span> / <span class="src cash">USDT+现金</span> 静态数据`)
+    + `<br>${live?"数据更新时间："+new Date().toLocaleString("zh-CN"):"快照时间："+IB_SNAPSHOT_TIME}　·　方块面积=市值占比　·　颜色越亮代表板块内市值越大　·　红涨绿跌（私募/现金无浮动盈亏）`;
 }
 
 let CUR=null;
 async function run(){
   const ib=await getIBKR();
-  const net = ib.net + LB_NET;                 // 券商净值 = 股票 + 现金
   const stocks = buildHoldings(ib);
   const stockMV = stocks.reduce((s,h)=>s+h.mv,0);
-  const cash = Math.max(net - stockMV, 0);     // 合并现金
-  const cashTile = {tk:"现金", name:"现金 Cash", mv:cash, sector:"现金", src:["Cash"], kind:"cash"};
-  const all = stocks.concat(PREIPO.map(p=>({...p}))).concat([cashTile]);
-  CUR = {all, stocks, summary:{net, stockMV, cash}};
+  const lbStockMV = LB.reduce((s,h)=>s+h.qty*h.price,0);
+  const extraCash = EXTRA_CASH.reduce((s,h)=>s+h.mv,0);
+  const cash = Math.max(LB_NET - lbStockMV, 0) + Math.max(ib.cash||0, 0) + extraCash;
+  const cashTile = {tk:"现金+USDT", name:"USD Cash + USDT", mv:cash, sector:"现金/稳定币", src:["Cash"], kind:"cash"};
+  const all = stocks.concat(PREIPO.map(p=>({...p}))).concat([cashTile]).sort((a,b)=>b.mv-a.mv);
+  CUR = {all, stocks, summary:{net:stockMV+cash, stockMV, cash}};
   render(CUR);
 }
 window.addEventListener("resize", ()=>{ if(CUR) render(CUR); });

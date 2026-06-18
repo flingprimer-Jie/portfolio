@@ -8,7 +8,9 @@ import json, re, sys, datetime
 
 pos_f, sum_f, html_f = sys.argv[1], sys.argv[2], sys.argv[3]
 positions = json.load(open(pos_f)).get("positions", [])
-net = json.load(open(sum_f)).get("net_liquidation", 0)
+summary = json.load(open(sum_f))
+net = summary.get("net_liquidation", 0)
+cash = summary.get("total_cash_value", summary.get("cash_balance", summary.get("available_funds", 0)))
 
 def r(x, n=2):
     return round(float(x), n)
@@ -27,6 +29,7 @@ for p in positions:
     )
 lines.append("]};")
 lines.append("const IB_NET_FALLBACK = {};".format(r(net)))
+lines.append("const IB_CASH_FALLBACK = {};".format(r(cash)))
 stamp = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
 lines.append('const IB_SNAPSHOT_TIME = "{}";'.format(stamp))
 block = "/*IBKR_SNAPSHOT_START*/\n" + "\n".join(lines) + "\n/*IBKR_SNAPSHOT_END*/"
@@ -37,4 +40,4 @@ new = re.sub(r"/\*IBKR_SNAPSHOT_START\*/.*?/\*IBKR_SNAPSHOT_END\*/",
 if new == html and "/*IBKR_SNAPSHOT_START*/" not in html:
     sys.exit("ERROR: snapshot markers not found in " + html_f)
 open(html_f, "w", encoding="utf-8").write(new)
-print("Snapshot baked:", stamp, "| positions:", len([p for p in positions if p.get('position')]), "| net:", r(net))
+print("Snapshot baked:", stamp, "| positions:", len([p for p in positions if p.get('position')]), "| net:", r(net), "| cash:", r(cash))
