@@ -52,6 +52,39 @@ body{ background:transparent; font-family:-apple-system,BlinkMacSystemFont,"Sego
 .sector-note b{ display:flex; align-items:center; gap:7px; color:#e6edf3; font-size:12px; margin-bottom:5px; }
 .sector-note i{ width:10px; height:10px; border-radius:3px; display:inline-block; flex:0 0 auto; }
 .sector-note p{ color:#8b97a7; font-size:11px; line-height:1.45; }
+.memory-watch{ margin-top:22px; border:1px solid rgba(255,255,255,.08); border-radius:14px; overflow:hidden; background:rgba(255,255,255,.025); }
+.mw-head{ display:grid; grid-template-columns:1.25fr .75fr; gap:16px; padding:16px; background:linear-gradient(135deg,rgba(14,165,233,.12),rgba(15,23,42,.18)); border-bottom:1px solid rgba(255,255,255,.08); }
+.mw-kicker{ font-size:11px; color:#7dd3fc; font-weight:800; letter-spacing:.5px; margin-bottom:6px; }
+.mw-title{ font-size:18px; font-weight:800; margin-bottom:7px; }
+.mw-sub{ color:#9aa6b7; font-size:12px; line-height:1.55; max-width:720px; }
+.mw-signal{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; align-content:start; }
+.mw-signal div{ background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07); border-radius:10px; padding:10px; }
+.mw-signal b{ display:block; font-size:18px; margin-bottom:3px; }
+.mw-signal span{ color:#8b97a7; font-size:10px; line-height:1.35; display:block; }
+.mw-flow{ display:flex; flex-wrap:wrap; gap:8px; padding:12px 16px; border-bottom:1px solid rgba(255,255,255,.06); }
+.mw-flow span{ font-size:11px; color:#dbeafe; background:rgba(56,189,248,.09); border:1px solid rgba(56,189,248,.18); border-radius:999px; padding:5px 9px; }
+.mw-flow em{ color:#64748b; font-style:normal; align-self:center; }
+.watch-grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; padding:12px; }
+.watch-card{ background:rgba(8,13,22,.72); border:1px solid rgba(255,255,255,.07); border-radius:12px; padding:12px; min-height:178px; }
+.watch-card.red{ border-color:rgba(248,113,113,.26); }
+.watch-card.yellow{ border-color:rgba(251,191,36,.28); }
+.watch-card.green{ border-color:rgba(34,197,94,.22); }
+.wc-top{ display:flex; justify-content:space-between; gap:10px; align-items:flex-start; margin-bottom:8px; }
+.wc-name{ font-size:13px; font-weight:800; color:#f1f5f9; }
+.wc-order{ font-size:10px; color:#64748b; margin-top:2px; }
+.wc-badge{ flex:0 0 auto; border-radius:999px; padding:3px 8px; font-size:10px; font-weight:800; }
+.wc-badge.green{ color:#bbf7d0; background:rgba(34,197,94,.12); border:1px solid rgba(34,197,94,.24); }
+.wc-badge.yellow{ color:#fde68a; background:rgba(251,191,36,.12); border:1px solid rgba(251,191,36,.26); }
+.wc-badge.red{ color:#fecaca; background:rgba(248,113,113,.12); border:1px solid rgba(248,113,113,.26); }
+.wc-row{ color:#9aa6b7; font-size:11px; line-height:1.55; margin-top:7px; }
+.wc-row b{ color:#dbeafe; font-weight:700; }
+.wc-links{ display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+.wc-links a{ color:#7dd3fc; text-decoration:none; font-size:10px; border:1px solid rgba(125,211,252,.22); background:rgba(125,211,252,.08); border-radius:7px; padding:3px 7px; }
+.wc-links a:hover{ background:rgba(125,211,252,.16); }
+.mw-rules{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:0 12px 12px; }
+.mw-rule{ border-radius:12px; padding:10px 12px; background:rgba(255,255,255,.028); border:1px solid rgba(255,255,255,.065); }
+.mw-rule b{ display:block; color:#f1f5f9; font-size:12px; margin-bottom:5px; }
+.mw-rule p{ color:#8b97a7; font-size:11px; line-height:1.45; }
 .table-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
 table{ width:100%; border-collapse:collapse; margin-top:22px; font-size:13px; }
 th,td{ text-align:right; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.06); }
@@ -69,6 +102,8 @@ td.l,th.l{ text-align:left; }
 .src.cash{ background:rgba(148,163,184,.18); color:#cbd5e1; }
 @media(max-width:680px){ .cards{ grid-template-columns:repeat(2,1fr);} #tree{height:560px;} table{font-size:12px;} }
 @media(max-width:680px){ .sector-notes{ grid-template-columns:1fr;} }
+@media(max-width:860px){ .mw-head{ grid-template-columns:1fr;} .watch-grid{ grid-template-columns:1fr;} .mw-rules{ grid-template-columns:1fr;} }
+@media(max-width:520px){ .mw-signal{ grid-template-columns:1fr;} .mw-flow em{ display:none;} }
 </style>
 </head>
 <body>
@@ -105,6 +140,93 @@ td.l,th.l{ text-align:left; }
   <div class="secbar" id="secbar"></div>
   <div class="legend" id="legend"></div>
   <div class="sector-notes" id="sectorNotes"></div>
+
+  <section class="memory-watch" aria-label="存储周期见顶监测">
+    <div class="mw-head">
+      <div>
+        <div class="mw-kicker">MEMORY CYCLE TOP WATCH</div>
+        <div class="mw-title">存储周期见顶监测页</div>
+        <div class="mw-sub">核心不是看单一指标有多漂亮，而是看它们转向的先后顺序。当前基调：供需仍紧、AI 需求仍强，但合约价涨幅已从 1Q 极端高位开始降速，后面最需要盯“现货连续走弱 + 库存回升”。</div>
+      </div>
+      <div class="mw-signal">
+        <div><b style="color:#bbf7d0">偏多</b><span>现货、库存、供需仍支持上行周期</span></div>
+        <div><b style="color:#fde68a">黄边</b><span>合约涨幅从极端高位降速，需要确认是否只是基数效应</span></div>
+        <div><b style="color:#7dd3fc">优先级</b><span>先看现货和库存，再用合约价确认</span></div>
+      </div>
+    </div>
+    <div class="mw-flow">
+      <span>1 现货价先动</span><em>→</em><span>2 库存周数回升</span><em>→</em><span>3 供需缺口收窄</span><em>→</em><span>4 OEM 开始囤货</span><em>→</em><span>5 合约价确认转向</span>
+    </div>
+    <div class="watch-grid">
+      <article class="watch-card green">
+        <div class="wc-top"><div><div class="wc-name">① 现货价</div><div class="wc-order">最领先 · 领先合约约 1-2 个月</div></div><span class="wc-badge green">绿灯</span></div>
+        <div class="wc-row"><b>当前看法：</b>DRAMeXchange/TrendForce 的 DDR5 主流颗粒仍在上涨，CFM 的渠道价格也偏强，但部分模块/长尾品类已经有波动。</div>
+        <div class="wc-row"><b>警惕：</b>DDR5 16Gb 或服务器 RDIMM 现货连续 2-3 周环比下跌，且成交量不只是季末噪音。</div>
+        <div class="wc-links">
+          <a href="https://www.trendforce.com/price/dram/dram_spot" target="_blank" rel="noopener">TrendForce 现货</a>
+          <a href="https://datatrack.trendforce.com/Chart/content/4694/mainstream-dram-spot-price" target="_blank" rel="noopener">DataTrack DDR5</a>
+          <a href="https://www.chinaflashmarket.com/price" target="_blank" rel="noopener">CFM 报价中心</a>
+        </div>
+      </article>
+      <article class="watch-card green">
+        <div class="wc-top"><div><div class="wc-name">② 库存周数</div><div class="wc-order">最干净 · 价格周期的水位计</div></div><span class="wc-badge green">绿灯</span></div>
+        <div class="wc-row"><b>当前看法：</b>公开口径仍指向供应商库存极低、客户需要争取配额；公司财报可用存货/COGS 粗算 DIO，TrendForce 付费数据更直接。</div>
+        <div class="wc-row"><b>警惕：</b>库存回到 10-13 周先黄灯，超过 15 周通常接近下行前夜；若同时伴随现货跌，优先级最高。</div>
+        <div class="wc-links">
+          <a href="https://www.trendforce.com/presscenter/news/20260601-13070.html" target="_blank" rel="noopener">TrendForce 库存表述</a>
+          <a href="https://investors.micron.com/news-releases/news-release-details/micron-technology-inc-reports-results-second-quarter-fiscal-2026" target="_blank" rel="noopener">Micron 季报</a>
+          <a href="https://www.skhynix.com/ir/UI-FR-IR06/" target="_blank" rel="noopener">SK hynix IR</a>
+          <a href="https://news.samsung.com/global/samsung-electronics-announces-first-quarter-2026-results" target="_blank" rel="noopener">Samsung 业绩</a>
+        </div>
+      </article>
+      <article class="watch-card green">
+        <div class="wc-top"><div><div class="wc-name">③ 供需平衡</div><div class="wc-order">中期方向 · 看需求增速是否还能压住供给</div></div><span class="wc-badge green">绿灯</span></div>
+        <div class="wc-row"><b>当前看法：</b>AI/HBM 和服务器 DRAM 挤占传统 DRAM/NAND 供给，IDC 公开口径显示 2026 供给增速低于历史常态。</div>
+        <div class="wc-row"><b>警惕：</b>供给增速反超需求增速，或 2027-2028 新 fab/M15X/Idaho/P5 类产能集中爬坡并伴随价格松动。</div>
+        <div class="wc-links">
+          <a href="https://www.idc.com/resource-center/blog/global-memory-shortage-crisis-market-analysis-and-the-potential-impact-on-the-smartphone-and-pc-markets-in-2026/" target="_blank" rel="noopener">IDC 供给增速</a>
+          <a href="https://www.trendforce.com/presscenter/news/20260331-12995.html" target="_blank" rel="noopener">TrendForce 供需/价格</a>
+          <a href="https://www.trendforce.com/research/category/Semiconductors/DRAM" target="_blank" rel="noopener">DRAM 供需报告</a>
+        </div>
+      </article>
+      <article class="watch-card green">
+        <div class="wc-top"><div><div class="wc-name">④ OEM 囤货</div><div class="wc-order">晚周期 · 教科书式顶部信号</div></div><span class="wc-badge green">绿灯</span></div>
+        <div class="wc-row"><b>当前看法：</b>目前更像“抢配额/锁长单”，还不是广泛 double-ordering；PC/手机端仍有成本压力。</div>
+        <div class="wc-row"><b>警惕：</b>OEM 和模组厂开始大规模 buffer building、重复下单、提前锁远期货，同时现货交易量反而变弱。</div>
+        <div class="wc-links">
+          <a href="https://www.trendforce.com/news/tag/dram/" target="_blank" rel="noopener">TrendForce DRAM 新闻</a>
+          <a href="https://www.chinaflashmarket.com/review" target="_blank" rel="noopener">CFM 行情分析</a>
+          <a href="https://www.digitimes.com/search/?query=DRAM%20double%20ordering%20inventory" target="_blank" rel="noopener">DigiTimes 搜索</a>
+        </div>
+      </article>
+      <article class="watch-card yellow">
+        <div class="wc-top"><div><div class="wc-name">⑤ 合约价</div><div class="wc-order">最滞后 · 最权威的确认指标</div></div><span class="wc-badge yellow">观察</span></div>
+        <div class="wc-row"><b>当前看法：</b>1Q26 conventional DRAM 合约价约 +93-98% QoQ，2Q26 预期仍 +58-63% QoQ；绝对强，但涨幅已从极端高位降速。</div>
+        <div class="wc-row"><b>警惕：</b>涨幅明显放缓后连续转平、转负；如果和现货下跌、库存回升共振，周期顶部概率大幅上升。</div>
+        <div class="wc-links">
+          <a href="https://www.trendforce.com/price/dram/dram_contract" target="_blank" rel="noopener">TrendForce 合约价</a>
+          <a href="https://www.dramexchange.com/" target="_blank" rel="noopener">DRAMeXchange</a>
+          <a href="https://www.trendforce.com/presscenter/news/20260601-13070.html" target="_blank" rel="noopener">1Q/2Q 涨幅</a>
+        </div>
+      </article>
+      <article class="watch-card green">
+        <div class="wc-top"><div><div class="wc-name">⑥ AI Capex 总开关</div><div class="wc-order">需求侧因变量 · 凌驾于五个结果指标</div></div><span class="wc-badge green">绿灯</span></div>
+        <div class="wc-row"><b>当前看法：</b>微软、谷歌、亚马逊、Meta 仍在维持或上调 AI 基建投入，暂未看到需求腿断裂。</div>
+        <div class="wc-row"><b>警惕：</b>capex 指引下修、GPU/CPU 短周期资产支出放缓、或越来越依赖债务融资来撑 AI 数据中心。</div>
+        <div class="wc-links">
+          <a href="https://www.microsoft.com/en-us/investor/events/fy-2026/earnings-fy-2026-q3" target="_blank" rel="noopener">Microsoft Capex</a>
+          <a href="https://abc.xyz/investor/events/event-details/2026/2026-Q1-Earnings-Call-2026-nW8kCrBAKS/default.aspx" target="_blank" rel="noopener">Alphabet Capex</a>
+          <a href="https://ir.aboutamazon.com/news-release/news-release-details/2026/Amazon-com-Announces-First-Quarter-Results/default.aspx" target="_blank" rel="noopener">Amazon AI 投入</a>
+          <a href="https://investor.atmeta.com/home/default.aspx" target="_blank" rel="noopener">Meta IR</a>
+        </div>
+      </article>
+    </div>
+    <div class="mw-rules">
+      <div class="mw-rule"><b>黄灯规则</b><p>1 个指标转负通常是噪音；2 个转负，尤其“现货 + 库存”，开始减速观察和准备减仓节奏。</p></div>
+      <div class="mw-rule"><b>红灯规则</b><p>3 个以上转负，或现货、库存、合约价三者共振，默认进入再承销：重新看仓位、估值和退出计划。</p></div>
+      <div class="mw-rule"><b>我的优先级</b><p>最早警报看现货价和库存周数；确认拐点看合约价；真正改变周期长度的是 CSP AI capex。</p></div>
+    </div>
+  </section>
 
   <div class="table-wrap">
     <table id="holdTable">
@@ -144,7 +266,7 @@ const IB_FALLBACK = {positions:[
 ]};
 const IB_NET_FALLBACK = 2304.07;
 const IB_CASH_FALLBACK = 248.62;
-const IB_SNAPSHOT_TIME = "2026-06-19 04:01 UTC";
+const IB_SNAPSHOT_TIME = "2026-06-21 04:02 UTC";
 /*IBKR_SNAPSHOT_END*/
 
 const NAMES = {NOK:"Nokia Oyj",CIEN:"Ciena",SITM:"SiTime",RBLX:"Roblox",FOTO:"Tuttle Photonics ETF",FSLY:"Fastly",CRCL:"Circle",DRAM:"Roundhill Memory ETF",ORCL:"Oracle",VCX:"Fundrise Innovation Fund"};
