@@ -260,13 +260,14 @@ const EXTRA_CASH = [
 // IBKR 兜底快照（若实时拉取失败时使用）— 由定时任务自动刷新，勿手动改 marker 之间内容
 /*IBKR_SNAPSHOT_START*/
 const IB_FALLBACK = {positions:[
-  {contract_description:"CIEN",position:2.6,market_price:423.2,market_value:1100.32,average_price:462.69858,unrealized_pnl:-102.7},
-  {contract_description:"NOK",position:37.0,market_price:12.07,market_value:446.59,average_price:15.18267,unrealized_pnl:-115.17},
-  {contract_description:"SITM",position:0.6,market_price:607.28,market_value:364.37,average_price:686.584,unrealized_pnl:-47.58},
+  {contract_description:"CIEN",position:2.6,market_price:425.5,market_value:1106.3,average_price:462.69858,unrealized_pnl:-96.72},
+  {contract_description:"NOK",position:37.0,market_price:12.16,market_value:449.92,average_price:15.18267,unrealized_pnl:-111.84},
+  {contract_description:"ORCL",position:1.7,market_price:143.29,market_value:243.59,average_price:144.11553,unrealized_pnl:-1.4},
+  {contract_description:"SITM",position:0.6,market_price:615.46,market_value:369.28,average_price:686.584,unrealized_pnl:-42.67},
 ]};
-const IB_NET_FALLBACK = 2153.07;
-const IB_CASH_FALLBACK = 249.0;
-const IB_SNAPSHOT_TIME = "2026-07-04 12:35 UTC";
+const IB_NET_FALLBACK = 2201.78;
+const IB_CASH_FALLBACK = 4.0;
+const IB_SNAPSHOT_TIME = "2026-07-07 04:02 UTC";
 /*IBKR_SNAPSHOT_END*/
 
 const NAMES = {NOK:"Nokia Oyj",CIEN:"Ciena",SITM:"SiTime",RBLX:"Roblox",FOTO:"Tuttle Photonics ETF",FSLY:"Fastly",CRCL:"Circle",DRAM:"Roundhill Memory ETF",ORCL:"Oracle",VCX:"Fundrise Innovation Fund"};
